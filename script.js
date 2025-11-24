@@ -1,3 +1,13 @@
+const categoryNames = {
+    grundlagen: '🏗️ Grundlagen & Topologien',
+    netzwerkausdehnung: '🌐 Netzwerkausdehnung',
+    schichtenmodelle: '📊 Schichtenmodelle',
+    ugv: '🏢 UGV / Gebäudeverkabelung',
+    medien: '📡 Übertragungsmedien',
+    geraete: '🔌 Netzwerkgeräte',
+    firewall: '🛡️ Firewalls',
+    protokolle: '🔐 Protokolle & Dienste'
+};
 const questions = {
     grundlagen: [
         {
