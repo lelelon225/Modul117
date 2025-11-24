@@ -686,3 +686,265 @@ const questions = {
         }
     ]
 };
+
+// Quiz state management
+let currentCategory = '';
+let currentQuestionIndex = 0;
+let currentQuestions = [];
+let correctCount = 0;
+let wrongCount = 0;
+let wrongQuestions = [];
+let isAnswerChecked = false;
+
+// Start quiz for a specific category
+function startQuiz(category) {
+    currentCategory = category;
+    currentQuestionIndex = 0;
+    correctCount = 0;
+    wrongCount = 0;
+    wrongQuestions = [];
+    isAnswerChecked = false;
+    
+    // Get questions for the category
+    currentQuestions = questions[category] || [];
+    
+    if (currentQuestions.length === 0) {
+        alert('Keine Fragen für diese Kategorie verfügbar.');
+        return;
+    }
+    
+    // Hide main menu and show quiz container
+    document.getElementById('mainMenu').style.display = 'none';
+    document.getElementById('quizContainer').classList.add('active');
+    
+    // Set category title
+    document.getElementById('categoryTitle').textContent = categoryNames[category] || category;
+    
+    // Load first question
+    loadQuestion();
+}
+
+// Load current question
+function loadQuestion() {
+    if (currentQuestionIndex >= currentQuestions.length) {
+        showCompletionScreen();
+        return;
+    }
+    
+    const question = currentQuestions[currentQuestionIndex];
+    
+    // Update question text
+    document.getElementById('questionText').textContent = question.question;
+    
+    // Update question number
+    document.getElementById('questionNumber').textContent = 
+        `Frage ${currentQuestionIndex + 1} von ${currentQuestions.length}`;
+    
+    // Update progress bar
+    const progress = ((currentQuestionIndex + 1) / currentQuestions.length) * 100;
+    document.getElementById('progressFill').style.width = progress + '%';
+    
+    // Update stats
+    document.getElementById('correctCount').textContent = correctCount;
+    document.getElementById('wrongCount').textContent = wrongCount;
+    
+    // Reset input and feedback
+    const answerInput = document.getElementById('answerInput');
+    answerInput.value = '';
+    answerInput.className = '';
+    answerInput.disabled = false;
+    
+    const feedback = document.getElementById('feedback');
+    feedback.classList.remove('show', 'correct', 'incorrect');
+    
+    const correctionPrompt = document.getElementById('correctionPrompt');
+    correctionPrompt.classList.remove('show');
+    
+    document.getElementById('correctionInput').value = '';
+    document.getElementById('correctionFeedback').textContent = '';
+    
+    // Show check button, hide next button
+    document.getElementById('checkBtn').style.display = 'inline-block';
+    document.getElementById('nextBtn').style.display = 'none';
+    
+    isAnswerChecked = false;
+    
+    // Focus on input
+    answerInput.focus();
+}
+
+// Check user's answer
+function checkAnswer() {
+    if (isAnswerChecked) return;
+    
+    const answerInput = document.getElementById('answerInput');
+    const userAnswer = answerInput.value.trim().toUpperCase();
+    
+    if (userAnswer === '') {
+        alert('Bitte gib eine Antwort ein.');
+        return;
+    }
+    
+    const question = currentQuestions[currentQuestionIndex];
+    const isCorrect = question.correct.includes(userAnswer);
+    
+    const feedback = document.getElementById('feedback');
+    const feedbackLabel = document.getElementById('feedbackLabel');
+    const feedbackText = document.getElementById('feedbackText');
+    const solution = document.getElementById('solution');
+    const solutionText = document.getElementById('solutionText');
+    
+    feedback.classList.add('show');
+    answerInput.disabled = true;
+    isAnswerChecked = true;
+    
+    if (isCorrect) {
+        // Correct answer
+        correctCount++;
+        answerInput.classList.add('correct');
+        feedback.classList.add('correct');
+        feedbackLabel.textContent = '✓ Korrekt!';
+        feedbackText.textContent = 'Gut gemacht!';
+        solution.style.display = 'none';
+        
+        // Hide check button, show next button
+        document.getElementById('checkBtn').style.display = 'none';
+        document.getElementById('nextBtn').style.display = 'inline-block';
+    } else {
+        // Wrong answer
+        wrongCount++;
+        wrongQuestions.push(question);
+        answerInput.classList.add('incorrect');
+        feedback.classList.add('incorrect');
+        feedbackLabel.textContent = '✗ Falsch';
+        feedbackText.textContent = 'Bitte gib die richtige Antwort ein, um fortzufahren.';
+        solution.style.display = 'block';
+        solutionText.textContent = question.answers[0];
+        
+        // Show correction prompt
+        document.getElementById('correctionPrompt').classList.add('show');
+        document.getElementById('correctionInput').focus();
+    }
+    
+    // Update stats
+    document.getElementById('correctCount').textContent = correctCount;
+    document.getElementById('wrongCount').textContent = wrongCount;
+}
+
+// Check correction input
+function checkCorrection() {
+    const correctionInput = document.getElementById('correctionInput');
+    const userCorrection = correctionInput.value.trim().toUpperCase();
+    const question = currentQuestions[currentQuestionIndex];
+    
+    if (userCorrection === '') {
+        document.getElementById('correctionFeedback').textContent = 
+            'Bitte gib die richtige Antwort ein.';
+        return;
+    }
+    
+    const isCorrect = question.correct.includes(userCorrection);
+    
+    if (isCorrect) {
+        correctionInput.classList.add('correct');
+        document.getElementById('correctionFeedback').textContent = '';
+        
+        // Hide check button, show next button
+        document.getElementById('checkBtn').style.display = 'none';
+        document.getElementById('nextBtn').style.display = 'inline-block';
+        
+        // Hide correction prompt
+        setTimeout(() => {
+            document.getElementById('correctionPrompt').classList.remove('show');
+        }, 500);
+    } else {
+        document.getElementById('correctionFeedback').textContent = 
+            '⚠️ Das ist noch nicht richtig. Versuche es nochmal.';
+        correctionInput.value = '';
+        correctionInput.focus();
+    }
+}
+
+// Move to next question
+function nextQuestion() {
+    currentQuestionIndex++;
+    loadQuestion();
+}
+
+// Go back to main menu
+function backToMenu() {
+    document.getElementById('quizContainer').classList.remove('active');
+    document.getElementById('mainMenu').style.display = 'grid';
+    
+    // Enable repeat button if there are wrong questions
+    const repeatBtn = document.getElementById('repeatBtn');
+    if (wrongQuestions.length > 0) {
+        repeatBtn.disabled = false;
+    }
+}
+
+// Show completion screen
+function showCompletionScreen() {
+    const questionBox = document.querySelector('.question-box');
+    questionBox.innerHTML = `
+        <div class="completion-screen">
+            <div class="completion-message">🎉 Quiz abgeschlossen!</div>
+            <div class="completion-stats">
+                <div class="completion-stat correct">
+                    <div class="completion-stat-number">${correctCount}</div>
+                    <div class="stat-label">✓ Richtig</div>
+                </div>
+                <div class="completion-stat incorrect">
+                    <div class="completion-stat-number">${wrongCount}</div>
+                    <div class="stat-label">✗ Falsch</div>
+                </div>
+            </div>
+            <div class="completion-buttons">
+                <button class="action-btn" onclick="backToMenu()">← Zurück zum Menü</button>
+                ${wrongCount > 0 ? '<button class="action-btn" onclick="repeatWrong()">🔄 Falsche Fragen wiederholen</button>' : ''}
+            </div>
+        </div>
+    `;
+}
+
+// Repeat wrong questions
+function repeatWrong() {
+    if (wrongQuestions.length === 0) {
+        alert('Keine falschen Fragen zum Wiederholen.');
+        return;
+    }
+    
+    // Reset quiz with wrong questions
+    currentQuestions = [...wrongQuestions];
+    wrongQuestions = [];
+    currentQuestionIndex = 0;
+    correctCount = 0;
+    wrongCount = 0;
+    isAnswerChecked = false;
+    
+    // Show quiz container
+    document.getElementById('mainMenu').style.display = 'none';
+    document.getElementById('quizContainer').classList.add('active');
+    
+    // Set category title
+    document.getElementById('categoryTitle').textContent = '🔄 Falsche Fragen wiederholen';
+    
+    // Load first question
+    loadQuestion();
+}
+
+// Handle Enter key press in answer input
+function handleKeyPress(event) {
+    if (event.key === 'Enter') {
+        if (!isAnswerChecked) {
+            checkAnswer();
+        }
+    }
+}
+
+// Handle Enter key press in correction input
+function handleCorrectionKeyPress(event) {
+    if (event.key === 'Enter') {
+        checkCorrection();
+    }
+}
