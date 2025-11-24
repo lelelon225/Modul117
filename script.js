@@ -27,8 +27,8 @@ const questions = {
         },
         {
             question: "Welche Topologie bietet die grösste Ausfallsicherheit?",
-            answers: ["Ring-Topologie", "Ringtopologie"],
-            correct: ["RING-TOPOLOGIE", "RINGTOPOLOGIE"]
+            answers: ["Stern-Topologie", "Sterntopologie"],
+            correct: [" STERN-TOPOLOGIE", "STERNTOPOLOGIE"]
         },
         {
             question: "Was ist ein Nachteil der Bus-Topologie?",
@@ -261,8 +261,8 @@ const questions = {
         },
         {
             question: "Was bedeutet die Abkürzung GV in der Gebäudeverkabelung?",
-            answers: ["Gebäudeverkabelung"],
-            correct: ["GEBÄUDEVERKABELUNG"]
+            answers: ["Gebäudeverteiler"],
+            correct: ["Gebäudeverteiler"]
         },
         {
             question: "Was bedeutet die Abkürzung SV in der Gebäudeverkabelung?",
@@ -494,11 +494,6 @@ const questions = {
             question: "Was ist die Grundfunktion einer Firewall?",
             answers: ["Kontrolle des Datenverkehrs zwischen Netzwerken", "Filtern von Datenpaketen"],
             correct: ["KONTROLLE DES DATENVERKEHRS ZWISCHEN NETZWERKEN", "FILTERN VON DATENPAKETEN"]
-        },
-        {
-            question: "Ein Switch erzeugt welche Art von Bereich?",
-            answers: ["Collision Domain", "Broadcast Domain"],
-            correct: ["COLLISION DOMAIN", "BROADCAST DOMAIN"]
         },
         {
             question: "Ein Router trennt welche Art von Bereich?",
