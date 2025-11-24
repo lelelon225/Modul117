@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modul 117 - Netzwerktechnik Lernplattform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e1e2e 0%, #2d2d44 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            color: #a0a0a0;
+        }
+
+        .main-menu {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .category-btn, .action-btn {
+            padding: 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .category-btn {
+            background: linear-gradient(135deg, #0099ff, #00d4ff);
+            color: white;
+        }
+
+        .category-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 212, 255, 0.3);
+        }
+
+        .action-btn {
+            background: #3a3a52;
+            color: #00d4ff;
+            border: 2px solid #00d4ff;
+        }
+
+        .action-btn:hover {
+            background: #00d4ff;
+            color: #1e1e2e;
+        }
+
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .quiz-container {
+            display: none;
+            background: #2d2d44;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .quiz-container.active {
+            display: block;
+        }
+
+        .quiz-header {
+            margin-bottom: 30px;
+        }
+
+        .category-title {
+            font-size: 2em;
+            margin-bottom: 10px;
+            color: #00d4ff;
+        }
+
+        .progress-bar {
+            background: #1e1e2e;
+            height: 8px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #0099ff, #00d4ff);
+            transition: width 0.3s ease;
+        }
+
+        .question-number {
+            color: #a0a0a0;
+            font-size: 0.95em;
+            margin-top: 10px;
+        }
+
+        .question-box {
+            background: #1e1e2e;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 5px solid #0099ff;
+        }
+
+        .question-text {
+            font-size: 1.3em;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        #answerInput {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #3a3a52;
+            border-radius: 8px;
+            background: #161620;
+            color: #e0e0e0;
+            font-size: 1.1em;
+            transition: border-color 0.3s ease;
+        }
+
+        #answerInput:focus {
+            outline: none;
+            border-color: #0099ff;
+        }
+
+        #answerInput.correct {
+            border-color: #00cc00;
+            background: rgba(0, 204, 0, 0.1);
+        }
+
+        #answerInput.incorrect {
+            border-color: #ff3333;
+            background: rgba(255, 51, 51, 0.1);
+        }
+
+        .check-btn, .next-btn, .confirm-correct-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .check-btn {
+            background: linear-gradient(135deg, #0099ff, #00d4ff);
+            color: white;
+        }
+
+        .check-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 153, 255, 0.4);
+        }
+
+        .next-btn, .confirm-correct-btn {
+            background: #00cc00;
+            color: #161620;
+            display: none;
+            font-weight: 700;
+        }
+
+        .next-btn:hover, .confirm-correct-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 204, 0, 0.4);
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct {
+            background: rgba(0, 204, 0, 0.2);
+            border-left: 5px solid #00cc00;
+            color: #00ff00;
+        }
+
+        .feedback.incorrect {
+            background: rgba(255, 51, 51, 0.2);
+            border-left: 5px solid #ff3333;
+            color: #ff6666;
+        }
+
+        .feedback-label {
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .solution {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            color: #a0a0a0;
+        }
+
+        .solution-label {
+            font-weight: 600;
+            color: #e0e0e0;
+        }
+
+        .correction-prompt {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255, 153, 0, 0.15);
+            border: 2px solid #ff9900;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .correction-prompt.show {
+            display: block;
+        }
+
+        .correction-prompt-text {
+            color: #ffaa00;
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .correction-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        #correctionInput {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #ff9900;
+            border-radius: 8px;
+            background: #161620;
+            color: #e0e0e0;
+            font-size: 1.1em;
+            transition: border-color 0.3s ease;
+        }
+
+        #correctionInput:focus {
+            outline: none;
+            border-color: #ffaa00;
+        }
+
+        #correctionInput.correct {
+            border-color: #00cc00;
+            background: rgba(0, 204, 0, 0.1);
+        }
+
+        .stats {
+            background: #1e1e2e;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: 700;
+            color: #00d4ff;
+        }
+
+        .stat-label {
+            color: #a0a0a0;
+            margin-top: 5px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .back-btn {
+            padding: 12px 25px;
+            background: #3a3a52;
+            color: #00d4ff;
+            border: 2px solid #00d4ff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 1em;
+        }
+
+        .back-btn:hover {
+            background: #00d4ff;
+            color: #1e1e2e;
+        }
+
+        .completion-screen {
+            text-align: center;
+            padding: 60px 30px;
+        }
+
+        .completion-message {
+            font-size: 2em;
+            margin-bottom: 30px;
+            color: #00d4ff;
+        }
+
+        .completion-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .completion-stat {
+            background: #1e1e2e;
+            padding: 30px;
+            border-radius: 10px;
+        }
+
+        .completion-stat-number {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .completion-stat.correct .completion-stat-number {
+            color: #00cc00;
+        }
+
+        .completion-stat.incorrect .completion-stat-number {
+            color: #ff3333;
+        }
+
+        .completion-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .main-menu {
+                grid-template-columns: 1fr;
+            }
+
+            .quiz-container {
+                padding: 20px;
+            }
+
+            .question-box {
+                padding: 20px;
+            }
+
+            .input-group, .correction-input-group {
+                flex-direction: column;
+            }
+
+            .completion-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .completion-buttons {
+                flex-direction: column;
+            }
+
+            .category-btn, .action-btn {
+                padding: 15px;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 Modul 117 - Netzwerktechnik</h1>
+            <p class="subtitle">Interaktive Lernplattform mit offenen Fragen</p>
+        </header>
+
+        <div id="mainMenu" class="main-menu">
+            <button class="category-btn" onclick="startQuiz('schichtenmodelle')">🏗️ Schichtenmodelle</button>
+            <button class="category-btn" onclick="startQuiz('ugv')">🏢 UGV / Gebäudeverkabelung</button>
+            <button class="category-btn" onclick="startQuiz('geraete')">🔌 Netzwerkgeräte</button>
+            <button class="category-btn" onclick="startQuiz('medien')">📡 Übertragungsmedien</button>
+            <button class="category-btn" onclick="startQuiz('firewall')">🛡️ Firewalls</button>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="action-btn" onclick="repeatWrong()" id="repeatBtn" disabled>🔄 Falsche Fragen wiederholen</button>
+        </div>
+
+        <div id="quizContainer" class="quiz-container">
+            <div class="nav-buttons">
+                <button class="back-btn" onclick="backToMenu()">← Zurück</button>
+            </div>
+
+            <div class="quiz-header">
+                <h2 class="category-title" id="categoryTitle">Kategorie</h2>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+                <div class="question-number" id="questionNumber">Frage 1 von 10</div>
+            </div>
+
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number" id="correctCount">0</div>
+                    <div class="stat-label">✓ Richtig</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="wrongCount">0</div>
+                    <div class="stat-label">✗ Falsch</div>
+                </div>
+            </div>
+
+            <div class="question-box">
+                <div class="question-text" id="questionText">Frage wird geladen...</div>
+                <div class="input-group">
+                    <input type="text" id="answerInput" placeholder="Deine Antwort hier eingeben..." onkeypress="handleKeyPress(event)">
+                    <button class="check-btn" id="checkBtn" onclick="checkAnswer()">Überprüfen</button>
+                    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Nächste Frage →</button>
+                </div>
+                <div class="feedback" id="feedback">
+                    <div class="feedback-label" id="feedbackLabel">Korrekt!</div>
+                    <div id="feedbackText"></div>
+                    <div class="solution" id="solution" style="display:none;">
+                        <div class="solution-label">Richtige Antwort:</div>
+                        <div id="solutionText"></div>
+                    </div>
+                </div>
+
+                <div class="correction-prompt" id="correctionPrompt">
+                    <div class="correction-prompt-text">⚠️ Bitte gib die richtige Antwort ein, um fortzufahren:</div>
+                    <div class="correction-input-group">
+                        <input type="text" id="correctionInput" placeholder="Gib die richtige Antwort ein..." onkeypress="handleCorrectionKeyPress(event)">
+                        <button class="confirm-correct-btn" id="confirmCorrectBtn" onclick="checkCorrection()" style="display: inline-block;">✓ Bestätigen</button>
+                    </div>
+                    <div id="correctionFeedback" style="margin-top: 10px; color: #ff6666;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = {
+            schichtenmodelle: [
+                {
+                    question: "Wie heißt die 1. Schicht des OSI-Modells auf Englisch?",
+                    answers: ["physical", "physical layer"],
+                    correct: ["PHYSICAL", "PHYSICAL LAYER"]
+                },
+                {
+                    question: "Wie heißt die 2. Schicht des OSI-Modells auf Englisch?",
+                    answers: ["data link", "data link layer"],
+                    correct: ["DATA LINK", "DATA LINK LAYER"]
+                },
+                {
+                    question: "Wie heißt die 3. Schicht des OSI-Modells auf Englisch?",
+                    answers: ["network", "network layer"],
+                    correct: ["NETWORK", "NETWORK LAYER"]
+                },
+                {
+                    question: "Wie heißt die 4. Schicht des OSI-Modells auf Englisch?",
+                    answers: ["transport", "transport layer"],
+                    correct: ["TRANSPORT", "TRANSPORT LAYER"]
+                },
+                {
+                    question: "Wie heißt die 5. Schicht des OSI-Modells auf Englisch?",
+                    answers: ["session", "session layer"],
+                    correct: ["SESSION", "SESSION LAYER"]
+                },
+                {
+                    question: "Wie heißt die 6. Schicht des OSI-Modells auf Englisch?",
+                    answers: ["presentation", "presentation layer"],
+                    correct: ["PRESENTATION", "PRESENTATION LAYER"]
+                },
+                {
+                    question: "Wie heißt die 7. Schicht des OSI-Modells auf Englisch?",
+                    answers: ["application", "application layer"],
+                    correct: ["APPLICATION", "APPLICATION LAYER"]
+                },
+                {
+                    question: "Wie viele Schichten hat das TCP/IP-Modell?",
+                    answers: ["4", "vier"],
+                    correct: ["4", "VIER"]
+                },
+                {
+                    question: "Welche OSI-Schichten werden im TCP/IP-Modell in die Application Layer zusammengefasst?",
+                    answers: ["5, 6, 7", "session, presentation, application", "5, 6 und 7"],
+                    correct: ["5, 6, 7", "SESSION, PRESENTATION, APPLICATION", "5, 6 UND 7"]
+                },
+                {
+                    question: "Auf welcher Schicht arbeitet die MAC-Adresse?",
+                    answers: ["Schicht 2", "Data Link", "Layer 2", "Data Link Layer"],
+                    correct: ["SCHICHT 2", "DATA LINK", "LAYER 2", "DATA LINK LAYER"]
+                },
+                {
+                    question: "Auf welcher Schicht arbeitet die IP-Adresse?",
+                    answers: ["Schicht 3", "Network", "Layer 3", "Network Layer"],
+                    correct: ["SCHICHT 3", "NETWORK", "LAYER 3", "NETWORK LAYER"]
+                },
+                {
+                    question: "Auf welcher Schicht arbeitet die Port-Adresse?",
+                    answers: ["Schicht 4", "Transport", "Layer 4", "Transport Layer"],
+                    correct: ["SCHICHT 4", "TRANSPORT", "LAYER 4", "TRANSPORT LAYER"]
+                },
+                {
+                    question: "Wie heißen die Dateneinheiten auf Schicht 2?",
+                    answers: ["Frame", "Frames"],
+                    correct: ["FRAME", "FRAMES"]
+                },
+                {
+                    question: "Wie heißen die Dateneinheiten auf Schicht 3?",
+                    answers: ["Paket", "Pakete"],
+                    correct: ["PAKET", "PAKETE"]
+                },
+                {
+                    question: "Wie heißen die Dateneinheiten auf Schicht 4?",
+                    answers: ["Segment", "Segmente"],
+                    correct: ["SEGMENT", "SEGMENTE"]
+                }
+            ],
+            ugv: [
+                {
+                    question: "Aus wie vielen Adern besteht ein Installationskabel (Twisted Pair)?",
+                    answers: ["8", "acht"],
+                    correct: ["8", "ACHT"]
+                },
+                {
+                    question: "Was ist der Unterschied zwischen Installationskabel und Patchkabel?",
+                    answers: ["Installationskabel ist starr, Patchkabel ist flexibel", "Patchkabel ist flexibel, Installationskabel ist starr"],
+                    correct: ["INSTALLATIONSKABEL IST STARR, PATCHKABEL IST FLEXIBEL", "PATCHKABEL IST FLEXIBEL, INSTALLATIONSKABEL IST STARR"]
+                },
+                {
+                    question: "Wie heißt die erste Verkabelungsebene in der Gebäudeverkabelung (UGV)?",
+                    answers: ["Primärbereich", "Campus"],
+                    correct: ["PRIMÄRBEREICH", "CAMPUS"]
+                },
+                {
+                    question: "Wie heißt die zweite Verkabelungsebene in der Gebäudeverkabelung?",
+                    answers: ["Sekundärbereich", "Vertikalverkabelung"],
+                    correct: ["SEKUNDÄRBEREICH", "VERTIKALVERKABELUNG"]
+                },
+                {
+                    question: "Wie heißt die dritte Verkabelungsebene in der Gebäudeverkabelung?",
+                    answers: ["Tertiärbereich", "Horizontalverkabelung"],
+                    correct: ["TERTIÄRBEREICH", "HORIZONTALVERKABELUNG"]
+                },
+                {
+                    question: "Welche Norm wird für RJ45-Stecker verwendet?",
+                    answers: ["8P8C", "8 Positionen 8 Kontakte"],
+                    correct: ["8P8C", "8 POSITIONEN 8 KONTAKTE"]
+                },
+                {
+                    question: "Was ist eine Anschlussdose (TAE)?",
+                    answers: ["Eine Wanddose zur Verbindung von Patchkabeln mit Installationskabeln"],
+                    correct: ["EINE WANDDOSE ZUR VERBINDUNG VON PATCHKABELN MIT INSTALLATIONSKABELN"]
+                },
+                {
+                    question: "Was ist ein Anschlussmodul?",
+                    answers: ["Ein Modul mit mehreren Anschlüssen im Rangierfeld"],
+                    correct: ["EIN MODUL MIT MEHREREN ANSCHLÜSSEN IM RANGIERFELD"]
+                },
+                {
+                    question: "Wie heißt das Gerät, auf dem die Installationskabel terminiert werden?",
+                    answers: ["Rangierfeld", "Patchpanel"],
+                    correct: ["RANGIERFELD", "PATCHPANEL"]
+                },
+                {
+                    question: "Was bedeutet die Abkürzung GV in der Gebäudeverkabelung?",
+                    answers: ["Gebäudeverkabelung"],
+                    correct: ["GEBÄUDEVERKABELUNG"]
+                },
+                {
+                    question: "Was bedeutet die Abkürzung SV in der Gebäudeverkabelung?",
+                    answers: ["Sekundärverkabelung"],
+                    correct: ["SEKUNDÄRVERKABELUNG"]
+                },
+                {
+                    question: "Was bedeutet die Abkürzung EV in der Gebäudeverkabelung?",
+                    answers: ["Etagenverkabelung"],
+                    correct: ["ETAGENVERKABELUNG"]
+                }
+            ],
+            geraete: [
+                {
+                    question: "Auf welcher Schicht arbeitet ein Router?",
+                    answers: ["Schicht 3", "Network Layer", "Layer 3", "Netzwerkschicht"],
+                    correct: ["SCHICHT 3", "NETWORK LAYER", "LAYER 3", "NETZWERKSCHICHT"]
+                },
+                {
+                    question: "Auf welcher Schicht arbeitet ein Switch?",
+                    answers: ["Schicht 2", "Data Link Layer", "Layer 2"],
+                    correct: ["SCHICHT 2", "DATA LINK LAYER", "LAYER 2"]
+                },
+                {
+                    question: "Auf welcher Schicht arbeitet ein Hub?",
+                    answers: ["Schicht 1", "Physical Layer", "Layer 1"],
+                    correct: ["SCHICHT 1", "PHYSICAL LAYER", "LAYER 1"]
+                },
+                {
+                    question: "Was ist eine NIC?",
+                    answers: ["Netzwerkschnittstellenkarte", "Network Interface Card"],
+                    correct: ["NETZWERKSCHNITTSTELLENKARTE", "NETWORK INTERFACE CARD"]
+                },
+                {
+                    question: "Welches Gerät wandelt Lichtsignale in elektrische Signale um?",
+                    answers: ["Media Converter"],
+                    correct: ["MEDIA CONVERTER"]
+                },
+                {
+                    question: "Auf welcher Schicht arbeitet ein Repeater?",
+                    answers: ["Schicht 1", "Physical", "Layer 1"],
+                    correct: ["SCHICHT 1", "PHYSICAL", "LAYER 1"]
+                },
+                {
+                    question: "Was ist die Grundfunktion einer Firewall?",
+                    answers: ["Kontrolle des Datenverkehrs zwischen Netzwerken", "Filtern von Datenpaketen"],
+                    correct: ["KONTROLLE DES DATENVERKEHRS ZWISCHEN NETZWERKEN", "FILTERN VON DATENPAKETEN"]
+                },
+                {
+                    question: "Ein Switch erzeugt einen Netzwerk-Sicherungsbereich oder Broadcast-Bereich. Wie heißt dieser Bereich auf Englisch?",
+                    answers: ["Collision Domain", "Broadcast Domain"],
+                    correct: ["COLLISION DOMAIN", "BROADCAST DOMAIN"]
+                },
+                {
+                    question: "Ein Router trennt verschiedene Netzwerke, indem er diese Art von Bereich isoliert. Welcher?",
+                    answers: ["Broadcast Domain"],
+                    correct: ["BROADCAST DOMAIN"]
+                },
+                {
+                    question: "Was ist der Unterschied zwischen einem Hub und einem Switch?",
+                    answers: ["Hub arbeitet auf Schicht 1, Switch auf Schicht 2", "Switch filtert Frames, Hub nicht"],
+                    correct: ["HUB ARBEITET AUF SCHICHT 1, SWITCH AUF SCHICHT 2", "SWITCH FILTERT FRAMES, HUB NICHT"]
+                }
+            ],
+            medien: [
+                {
+                    question: "Aus welchem Material besteht Glasfaser?",
+                    answers: ["Glas", "Siliziumdioxid"],
+                    correct: ["GLAS", "SILIZIUMDIOXID"]
+                },
+                {
+                    question: "Welche Übertragungsmedium ermöglicht die höchste Bandbreite?",
+                    answers: ["Glasfaser"],
+                    correct: ["GLASFASER"]
+                },
+                {
+                    question: "Wie heißt das Kupfer-Übertragungsmedium für Ethernet?",
+                    answers: ["Twisted Pair", "TP"],
+                    correct: ["TWISTED PAIR", "TP"]
+                },
+                {
+                    question: "Was ist UTP?",
+                    answers: ["Unshielded Twisted Pair", "Ungeschirmtes verdrilltes Paar"],
+                    correct: ["UNSHIELDED TWISTED PAIR", "UNGESCHIRMTES VERDRILLTES PAAR"]
+                },
+                {
+                    question: "Was ist STP?",
+                    answers: ["Shielded Twisted Pair", "Geschirmtes verdrilltes Paar"],
+                    correct: ["SHIELDED TWISTED PAIR", "GESCHIRMTES VERDRILLTES PAAR"]
+                },
+                {
+                    question: "Welche Übertragungsart nutzt Funk?",
+                    answers: ["WLAN", "Wireless"],
+                    correct: ["WLAN", "WIRELESS"]
+                },
+                {
+                    question: "Welche Frequenz nutzt WLAN hauptsächlich?",
+                    answers: ["2.4 GHz", "5 GHz"],
+                    correct: ["2.4 GHZ", "5 GHZ"]
+                },
+                {
+                    question: "Nenne die aktuelle Mobilfunk-Generation für Ultra-Hochgeschwindigkeitsübertragung:",
+                    answers: ["5G"],
+                    correct: ["5G"]
+                },
+                {
+                    question: "Welche Mobilfunk-Generation war die Vorgängerin von 5G?",
+                    answers: ["4G", "LTE"],
+                    correct: ["4G", "LTE"]
+                },
+                {
+                    question: "Was ist der Vorteil von Glasfaser gegenüber Kupfer?",
+                    answers: ["Größere Bandbreite, weniger Dämpfung, immun gegen Elektromagnetische Interferenz"],
+                    correct: ["GRÖSSERE BANDBREITE, WENIGER DÄMPFUNG, IMMUN GEGEN ELEKTROMAGNETISCHE INTERFERENZ"]
+                },
+                {
+                    question: "Was ist ein Nachteil von Funk/WLAN?",
+                    answers: ["Begrenzte Reichweite, Interferenzen, niedrigere Bandbreite als Kabel"],
+                    correct: ["BEGRENZTE REICHWEITE, INTERFERENZEN, NIEDRIGERE BANDBREITE ALS KABEL"]
+                },
+                {
+                    question: "Wie weit kann sich ein Netzwerk über Glasfaser ausdehnen?",
+                    answers: ["über 100 km", "Mehrere Kilometer"],
+                    correct: ["ÜBER 100 KM", "MEHRERE KILOMETER"]
+                }
+            ],
+            firewall: [
+                {
+                    question: "Was ist ein Bastion Host?",
+                    answers: ["Ein isolierter Computer, der als Schutz zwischen Netzwerken fungiert"],
+                    correct: ["EIN ISOLIERTER COMPUTER, DER ALS SCHUTZ ZWISCHEN NETZWERKEN FUNGIERT"]
+                },
+                {
+                    question: "Was ist eine Three-Homed Firewall?",
+                    answers: ["Eine Firewall mit drei Netzwerkschnittstellen"],
+                    correct: ["EINE FIREWALL MIT DREI NETZWERKSCHNITTSTELLEN"]
+                },
+                {
+                    question: "Welche drei Netzwerk-Zonen verbindet eine Three-Homed Firewall normalerweise?",
+                    answers: ["LAN, DMZ, Internet", "internes Netzwerk, DMZ, externes Netzwerk"],
+                    correct: ["LAN, DMZ, INTERNET", "INTERNES NETZWERK, DMZ, EXTERNES NETZWERK"]
+                },
+                {
+                    question: "Wie heißt die Netzwerk-Zone zwischen dem internen Netzwerk und dem Internet?",
+                    answers: ["DMZ", "Demilitarized Zone"],
+                    correct: ["DMZ", "DEMILITARIZED ZONE"]
+                },
+                {
+                    question: "Welche Server sind typischerweise in der DMZ?",
+                    answers: ["Webserver, Mailserver, DNS-Server"],
+                    correct: ["WEBSERVER, MAILSERVER, DNS-SERVER"]
+                },
+                {
+                    question: "Was ist ein Screened Subnet?",
+                    answers: ["Ein Subnetz, das von einer Firewall geschützt wird"],
+                    correct: ["EIN SUBNETZ, DAS VON EINER FIREWALL GESCHÜTZT WIRD"]
+                },
+                {
+                    question: "Unterschied zwischen DMZ und Screened Subnet?",
+                    answers: ["DMZ ist ein spezieller Fall eines Screened Subnets mit erhöhtem Schutzniveau"],
+                    correct: ["DMZ IST EIN SPEZIELLER FALL EINES SCREENED SUBNETS MIT ERHÖHTEM SCHUTZNIVEAU"]
+                },
+                {
+                    question: "Auf welcher Schicht arbeitet eine typische Firewall primär?",
+                    answers: ["Schicht 3", "Schicht 4", "Layer 3", "Layer 4"],
+                    correct: ["SCHICHT 3", "SCHICHT 4", "LAYER 3", "LAYER 4"]
+                },
+                {
+                    question: "Was prüft eine Stateful Firewall?",
+                    answers: ["Den Zustand von Verbindungen"],
+                    correct: ["DEN ZUSTAND VON VERBINDUNGEN"]
+                },
+                {
+                    question: "Was ist Packet Filtering?",
+                    answers: ["Das Zulassen oder Blockieren von Datenpaketen basierend auf Regeln"],
+                    correct: ["DAS ZULASSEN ODER BLOCKIEREN VON DATENPAKETEN BASIEREND AUF REGELN"]
+                },
+                {
+                    question: "Nenne die Komponenten einer DMZ-Architektur:",
+                    answers: ["Zwei Firewalls, internes Netzwerk, DMZ, Internet"],
+                    correct: ["ZWEI FIREWALLS, INTERNES NETZWERK, DMZ, INTERNET"]
+                },
+                {
+                    question: "Was ist Proxy-Filtering?",
+                    answers: ["Ein Firewall-Typ, der als Vermittler zwischen Clients und Servern agiert"],
+                    correct: ["EIN FIREWALL-TYP, DER ALS VERMITTLER ZWISCHEN CLIENTS UND SERVERN AGIERT"]
+                }
+            ]
+        };
+
+        let currentCategory = null;
+        let currentQuestionIndex = 0;
+        let currentQuestions = [];
+        let stats = {
+            correct: 0,
+            wrong: 0
+        };
+        let wrongAnswers = [];
+        let answered = false;
+        let isRepeatingWrong = false;
+        let isAwaitingCorrection = false;
+
+        function startQuiz(category) {
+            currentCategory = category;
+            currentQuestionIndex = 0;
+            stats = { correct: 0, wrong: 0 };
+            wrongAnswers = [];
+            answered = false;
+            isRepeatingWrong = false;
+            isAwaitingCorrection = false;
+            
+            currentQuestions = [...questions[category]];
+            showQuiz();
+            displayQuestion();
+        }
+
+        function repeatWrong() {
+            if (wrongAnswers.length === 0) return;
+            
+            currentCategory = null;
+            currentQuestionIndex = 0;
+            stats = { correct: 0, wrong: 0 };
+            currentQuestions = [...wrongAnswers];
+            wrongAnswers = [];
+            answered = false;
+            isRepeatingWrong = true;
+            isAwaitingCorrection = false;
+            
+            showQuiz();
+            displayQuestion();
+        }
+
+        function showQuiz() {
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('quizContainer').classList.add('active');
+        }
+
+        function backToMenu() {
+            document.getElementById('quizContainer').classList.remove('active');
+            document.getElementById('mainMenu').style.display = 'grid';
+            resetQuiz();
+            updateRepeatButton();
+        }
+
+        function resetQuiz() {
+            currentCategory = null;
+            currentQuestionIndex = 0;
+            stats = { correct: 0, wrong: 0 };
+            answered = false;
+            isAwaitingCorrection = false;
+            document.getElementById('answerInput').value = '';
+            document.getElementById('correctionInput').value = '';
+            document.getElementById('feedback').classList.remove('show', 'correct', 'incorrect');
+            document.getElementById('answerInput').classList.remove('correct', 'incorrect');
+            document.getElementById('checkBtn').style.display = 'inline-block';
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('correctionPrompt').classList.remove('show');
+        }
+
+        function displayQuestion() {
+            if (currentQuestionIndex >= currentQuestions.length) {
+                showCompletion();
+                return;
+            }
+
+            const question = currentQuestions[currentQuestionIndex];
+            document.getElementById('questionText').textContent = question.question;
+            document.getElementById('answerInput').value = '';
+            document.getElementById('correctionInput').value = '';
+            document.getElementById('answerInput').classList.remove('correct', 'incorrect');
+            document.getElementById('feedback').classList.remove('show', 'correct', 'incorrect');
+            document.getElementById('correctionPrompt').classList.remove('show');
+            document.getElementById('checkBtn').style.display = 'inline-block';
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('answerInput').focus();
+            
+            answered = false;
+            isAwaitingCorrection = false;
+            updateProgress();
+            updateStats();
+
+            if (isRepeatingWrong) {
+                document.getElementById('categoryTitle').textContent = '🔄 Falsche Fragen wiederholen';
+            } else {
+                const categoryNames = {
+                    schichtenmodelle: '🏗️ Schichtenmodelle',
+                    ugv: '🏢 UGV / Gebäudeverkabelung',
+                    geraete: '🔌 Netzwerkgeräte',
+                    medien: '📡 Übertragungsmedien',
+                    firewall: '🛡️ Firewalls'
+                };
+                document.getElementById('categoryTitle').textContent = categoryNames[currentCategory];
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                if (!answered) {
+                    checkAnswer();
+                } else if (answered && !isAwaitingCorrection) {
+                    nextQuestion();
+                }
+            }
+        }
+
+        function handleCorrectionKeyPress(event) {
+            if (event.key === 'Enter' && isAwaitingCorrection) {
+                checkCorrection();
+            }
+        }
+
+        function checkAnswer() {
+            if (answered) return;
+
+            const userAnswer = document.getElementById('answerInput').value.trim().toUpperCase();
+            const question = currentQuestions[currentQuestionIndex];
+            const isCorrect = question.correct.includes(userAnswer);
+
+            answered = true;
+
+            const feedback = document.getElementById('feedback');
+            const feedbackLabel = document.getElementById('feedbackLabel');
+            const feedbackText = document.getElementById('feedbackText');
+            const solution = document.getElementById('solution');
+            const solutionText = document.getElementById('solutionText');
+            const input = document.getElementById('answerInput');
+
+            if (isCorrect) {
+                feedbackLabel.textContent = '✓ Korrekt!';
+                feedbackText.textContent = '';
+                solution.style.display = 'none';
+                feedback.classList.add('correct');
+                input.classList.add('correct');
+                stats.correct++;
+                
+                document.getElementById('checkBtn').style.display = 'none';
+                document.getElementById('nextBtn').style.display = 'inline-block';
+                document.getElementById('correctionPrompt').classList.remove('show');
+                isAwaitingCorrection = false;
+            } else {
+                feedbackLabel.textContent = '✗ Leider falsch';
+                feedbackText.textContent = '';
+                solution.style.display = 'block';
+                solutionText.textContent = question.answers[0];
+                feedback.classList.add('incorrect');
+                input.classList.add('incorrect');
+                stats.wrong++;
+                
+                wrongAnswers.push(question);
+
+                // Zeige Korrektur-Prompt
+                document.getElementById('checkBtn').style.display = 'none';
+                document.getElementById('nextBtn').style.display = 'none';
+                document.getElementById('correctionPrompt').classList.add('show');
+                document.getElementById('correctionInput').classList.remove('correct');
+                document.getElementById('correctionInput').value = '';
+                document.getElementById('correctionFeedback').textContent = '';
+                isAwaitingCorrection = true;
+                setTimeout(() => document.getElementById('correctionInput').focus(), 100);
+            }
+
+            feedback.classList.add('show');
+            updateStats();
+        }
+
+        function checkCorrection() {
+            if (!isAwaitingCorrection) return;
+
+            const userAnswer = document.getElementById('correctionInput').value.trim().toUpperCase();
+            const question = currentQuestions[currentQuestionIndex];
+            const isCorrect = question.correct.includes(userAnswer);
+
+            const correctionInput = document.getElementById('correctionInput');
+            const correctionFeedback = document.getElementById('correctionFeedback');
+
+            if (isCorrect) {
+                correctionInput.classList.add('correct');
+                correctionFeedback.textContent = '✓ Genau! Jetzt weißt du die richtige Antwort.';
+                correctionFeedback.style.color = '#00ff00';
+                
+                setTimeout(() => {
+                    document.getElementById('nextBtn').style.display = 'inline-block';
+                    isAwaitingCorrection = false;
+                }, 600);
+            } else {
+                correctionFeedback.textContent = '✗ Das ist nicht richtig. Versuche es erneut oder lies die angezeigte Lösung.';
+                correctionFeedback.style.color = '#ff6666';
+                correctionInput.value = '';
+                setTimeout(() => correctionInput.focus(), 100);
+            }
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            displayQuestion();
+        }
+
+        function updateProgress() {
+            const total = currentQuestions.length;
+            const current = currentQuestionIndex + 1;
+            const percentage = (current / total) * 100;
+            document.getElementById('progressFill').style.width = percentage + '%';
+            document.getElementById('questionNumber').textContent = `Frage ${current} von ${total}`;
+        }
+
+        function updateStats() {
+            document.getElementById('correctCount').textContent = stats.correct;
+            document.getElementById('wrongCount').textContent = stats.wrong;
+        }
+
+        function updateRepeatButton() {
+            const repeatBtn = document.getElementById('repeatBtn');
+            if (wrongAnswers.length > 0) {
+                repeatBtn.disabled = false;
+                repeatBtn.textContent = `🔄 Falsche Fragen wiederholen (${wrongAnswers.length})`;
+            } else {
+                repeatBtn.disabled = true;
+                repeatBtn.textContent = '🔄 Falsche Fragen wiederholen';
+            }
+        }
+
+        function showCompletion() {
+            const quizContainer = document.getElementById('quizContainer');
+            const total = currentQuestions.length;
+            const correct = stats.correct;
+            const wrong = stats.wrong;
+            const percentage = Math.round((correct / total) * 100);
+
+            quizContainer.innerHTML = `
+                <div class="nav-buttons">
+                    <button class="back-btn" onclick="backToMenu()">← Zurück zum Menü</button>
+                </div>
+                <div class="completion-screen">
+                    <div class="completion-message">Quiz abgeschlossen!</div>
+                    <div class="completion-stats">
+                        <div class="completion-stat correct">
+                            <div class="completion-stat-number">${correct}</div>
+                            <div class="stat-label">Richtig</div>
+                        </div>
+                        <div class="completion-stat incorrect">
+                            <div class="completion-stat-number">${wrong}</div>
+                            <div class="stat-label">Falsch</div>
+                        </div>
+                    </div>
+                    <div style="font-size: 2em; margin-bottom: 30px;">
+                        <span style="color: #00d4ff; font-weight: 700;">${percentage}%</span>
+                    </div>
+                    <div class="completion-buttons">
+                        <button class="category-btn" onclick="backToMenu()">Zurück zum Menü</button>
+                        <button class="action-btn" onclick="repeatWrong()" ${wrongAnswers.length > 0 ? '' : 'disabled'}>🔄 Falsche wiederholen (${wrongAnswers.length})</button>
+                    </div>
+                </div>
+            `;
+
+            updateRepeatButton();
+        }
+    </script>
+</body>
+</html>
