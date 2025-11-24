@@ -886,25 +886,67 @@ function backToMenu() {
 // Show completion screen
 function showCompletionScreen() {
     const questionBox = document.querySelector('.question-box');
-    questionBox.innerHTML = `
-        <div class="completion-screen">
-            <div class="completion-message">🎉 Quiz abgeschlossen!</div>
-            <div class="completion-stats">
-                <div class="completion-stat correct">
-                    <div class="completion-stat-number">${correctCount}</div>
-                    <div class="stat-label">✓ Richtig</div>
-                </div>
-                <div class="completion-stat incorrect">
-                    <div class="completion-stat-number">${wrongCount}</div>
-                    <div class="stat-label">✗ Falsch</div>
-                </div>
-            </div>
-            <div class="completion-buttons">
-                <button class="action-btn" onclick="backToMenu()">← Zurück zum Menü</button>
-                ${wrongCount > 0 ? '<button class="action-btn" onclick="repeatWrong()">🔄 Falsche Fragen wiederholen</button>' : ''}
-            </div>
-        </div>
-    `;
+    
+    // Clear existing content
+    questionBox.innerHTML = '';
+    
+    // Create completion screen structure using DOM manipulation
+    const completionScreen = document.createElement('div');
+    completionScreen.className = 'completion-screen';
+    
+    const completionMessage = document.createElement('div');
+    completionMessage.className = 'completion-message';
+    completionMessage.textContent = '🎉 Quiz abgeschlossen!';
+    completionScreen.appendChild(completionMessage);
+    
+    const completionStats = document.createElement('div');
+    completionStats.className = 'completion-stats';
+    
+    const correctStat = document.createElement('div');
+    correctStat.className = 'completion-stat correct';
+    const correctNumber = document.createElement('div');
+    correctNumber.className = 'completion-stat-number';
+    correctNumber.textContent = correctCount;
+    const correctLabel = document.createElement('div');
+    correctLabel.className = 'stat-label';
+    correctLabel.textContent = '✓ Richtig';
+    correctStat.appendChild(correctNumber);
+    correctStat.appendChild(correctLabel);
+    
+    const incorrectStat = document.createElement('div');
+    incorrectStat.className = 'completion-stat incorrect';
+    const incorrectNumber = document.createElement('div');
+    incorrectNumber.className = 'completion-stat-number';
+    incorrectNumber.textContent = wrongCount;
+    const incorrectLabel = document.createElement('div');
+    incorrectLabel.className = 'stat-label';
+    incorrectLabel.textContent = '✗ Falsch';
+    incorrectStat.appendChild(incorrectNumber);
+    incorrectStat.appendChild(incorrectLabel);
+    
+    completionStats.appendChild(correctStat);
+    completionStats.appendChild(incorrectStat);
+    completionScreen.appendChild(completionStats);
+    
+    const completionButtons = document.createElement('div');
+    completionButtons.className = 'completion-buttons';
+    
+    const backButton = document.createElement('button');
+    backButton.className = 'action-btn';
+    backButton.textContent = '← Zurück zum Menü';
+    backButton.onclick = backToMenu;
+    completionButtons.appendChild(backButton);
+    
+    if (wrongCount > 0) {
+        const repeatButton = document.createElement('button');
+        repeatButton.className = 'action-btn';
+        repeatButton.textContent = '🔄 Falsche Fragen wiederholen';
+        repeatButton.onclick = repeatWrong;
+        completionButtons.appendChild(repeatButton);
+    }
+    
+    completionScreen.appendChild(completionButtons);
+    questionBox.appendChild(completionScreen);
 }
 
 // Repeat wrong questions
@@ -915,6 +957,7 @@ function repeatWrong() {
     }
     
     // Reset quiz with wrong questions
+    // Note: Shallow copy is sufficient as question objects are not modified during quiz
     currentQuestions = [...wrongQuestions];
     wrongQuestions = [];
     currentQuestionIndex = 0;
