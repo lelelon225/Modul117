@@ -781,7 +781,14 @@ function checkAnswer() {
     const userAnswer = answerInput.value.trim().toUpperCase();
     
     if (userAnswer === '') {
-        alert('Bitte gib eine Antwort ein.');
+        // Show inline validation feedback
+        answerInput.style.borderColor = '#ff9900';
+        answerInput.placeholder = '⚠️ Bitte gib eine Antwort ein...';
+        answerInput.focus();
+        setTimeout(() => {
+            answerInput.style.borderColor = '';
+            answerInput.placeholder = 'Deine Antwort hier eingeben...';
+        }, 2000);
         return;
     }
     
@@ -952,12 +959,14 @@ function showCompletionScreen() {
 // Repeat wrong questions
 function repeatWrong() {
     if (wrongQuestions.length === 0) {
-        alert('Keine falschen Fragen zum Wiederholen.');
+        // This shouldn't happen as button should be disabled, but handle gracefully
+        console.warn('repeatWrong called but no wrong questions available');
         return;
     }
     
     // Reset quiz with wrong questions
-    // Note: Shallow copy is sufficient as question objects are not modified during quiz
+    // Note: Shallow copy is sufficient because question objects are read-only
+    // and the quiz only reads from them without modifying their properties
     currentQuestions = [...wrongQuestions];
     wrongQuestions = [];
     currentQuestionIndex = 0;
