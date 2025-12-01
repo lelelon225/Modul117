@@ -94,7 +94,7 @@ const questions = {
             correct: ["WIDE AREA NETWORK"]
         },
         {
-            question: "Ordne PAN, LAN, CAN, MAN, WAN der Grösse nach (von klein zu gross):",
+            question: "Ordne die Netzwerkausdehnungen der Grösse nach (von klein zu gross):",
             answers: ["PAN, LAN, CAN, MAN, WAN"],
             correct: ["PAN, LAN, CAN, MAN, WAN"]
         },
