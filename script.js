@@ -168,8 +168,8 @@ const questions = {
         },
         {
             question: "Wie heißt die 2. Schicht des TCP/IP-Modells auf Deutsch?",
-            answers: ["Netzübergreifende Schicht", "Internetschicht"],
-            correct: ["NETZÜBERGREIFENDE SCHICHT", "INTERNETSCHICHT"]
+            answers: ["Internetschicht", "Netzübergreifende Schicht"],
+            correct: ["INTERNETSCHICHT", "NETZÜBERGREIFENDE SCHICHT"]
         },
         {
             question: "Wie heißt die 3. Schicht des TCP/IP-Modells auf Deutsch?",
